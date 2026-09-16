@@ -2,6 +2,9 @@ from datetime import date
 
 current_year = date.today().year
 
+ages = []
+total_years_unsolved = 0
+
 # Record 1
 record1 = "CARTER, DEMARCUS | m | 36 | 2018-03-22 | 412 larkmoor lane | beat 352 | OPEN"
 
@@ -10,12 +13,14 @@ fields = record1.strip().split(" | ")
 name = fields[0].title()
 sex = fields[1].upper()
 age = int(fields[2])
+ages.append(age)
 date_str = fields[3]
 year = int(date_str[0:4])
 addr = fields[4].title()
 status = fields[6].upper()
 
 years_unsolved = current_year - year
+total_years_unsolved += years_unsolved
 
 print(f"{'CASE':<20}{'AGE':>6}{'YEARS UNSOLVED':>18}")
 
@@ -30,12 +35,14 @@ fields = [f.strip() for f in record2.strip().split("|")]
 name = fields[0].title()
 sex = fields[1].upper()
 age = int(fields[2])
+ages.append(age)
 date_str = fields[3]
 year = int(date_str[0:4])
 addr = fields[4].title()
 status = fields[6].upper()
 
 years_unsolved = current_year - year
+total_years_unsolved += years_unsolved
 
 case_str = f"{name} ({sex})"
 print(f"{case_str:<20}{age:>6}{years_unsolved:>18}")
@@ -48,12 +55,14 @@ fields = record3.strip().split(" | ")
 name = fields[0].title()
 sex = fields[1].upper()
 age = int(fields[2])
+ages.append(age)
 date_str = fields[3]
 year = int(date_str[0:4])
 addr = fields[4].title()
 status = fields[6].upper()
 
 years_unsolved = current_year - year
+total_years_unsolved += years_unsolved
 
 case_str = f"{name} ({sex})"
 print(f"{case_str:<20}{age:>6}{years_unsolved:>18}")
@@ -66,12 +75,14 @@ fields = record4.strip().split(" | ")
 name = fields[0].title()
 sex = fields[1].upper()
 age = int(fields[2])
+ages.append(age)
 date_str = fields[3]
 year = int(date_str[0:4])
 addr = fields[4].title()
 status = fields[6].upper()
 
 years_unsolved = current_year - year
+total_years_unsolved += years_unsolved
 
 case_str = f"{name} ({sex})"
 print(f"{case_str:<20}{age:>6}{years_unsolved:>18}")
@@ -84,12 +95,18 @@ fields = record5.strip().split(" | ")
 name = fields[0].title()
 sex = fields[1].upper()
 age = int(fields[2])
+ages.append(age)
 date_str = fields[3]
 year = int(date_str[0:4])
 addr = fields[4].title()
 status = fields[6].upper()
 
 years_unsolved = current_year - year
+total_years_unsolved += years_unsolved
 
 case_str = f"{name} ({sex})"
 print(f"{case_str:<20}{age:>6}{years_unsolved:>18}")
+
+average_age = sum(ages) / len(ages)
+print(f"\nAVERAGE AGE: {average_age:.0f}")
+print(f"TOTAL YEARS UNSOLVED: {total_years_unsolved}")
