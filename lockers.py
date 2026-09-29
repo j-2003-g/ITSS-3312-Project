@@ -93,3 +93,8 @@ for beat in sorted(per_beat, key=per_beat.get, reverse=True):
     bar = "#" * count                # repeat "#" count times: 4 -> "####"
     # :<6 left-aligns the beat in 6 spaces, :>3 right-aligns the count in 3
     print(f"Beat {beat:<6}{count:>3}  {bar}")
+
+# Cheat sheet for Teja:
+# list in Python = ArrayList in Java
+# set in Python = HashSet in Java
+# dict in Python = HashMap in Java
