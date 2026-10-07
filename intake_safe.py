@@ -39,7 +39,7 @@ def parse_row(row):
         "sex": row[2].strip().upper(),                  # "m" -> "M"
         "age": age,                                     # already converted to an int above
         "date": row[4].strip(),                         # "2018-03-22"
-        "address": row[5].strip(),                      # "412 larkmoor"
+        "address": row[5].strip().title(),              # "412 Larkmoor"
         "beat": row[6].strip(),                         # "352"
         "status": row[7].strip().upper(),               # "open" -> "OPEN"
     }

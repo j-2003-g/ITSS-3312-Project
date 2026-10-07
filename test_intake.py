@@ -1,5 +1,5 @@
 # test_intake.py - Week 6: pytest proof that parse_row() works
-# Run with:  pytest test_intake.py
+# Run with:  python -m pytest test_intake.py
 #
 # pytest finds every function whose name starts with "test_" and runs it.
 # If every assert inside is True, the test passes (a green dot).
@@ -37,3 +37,6 @@ def test_missing_date_rejected():
     row[4] = ""                        # ...then blank out the date
     with pytest.raises(ValueError):    # must raise ValueError to pass
         parse_row(row)
+
+# Note: "with" syntax in Python ensures the file closes even if error occurs
+# Note: pytest.raises() is like an assert where it expects an error and fails the test if error is not raised
