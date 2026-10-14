@@ -1,4 +1,4 @@
-from case_model import clean_case_id, clean_name, clean_age, clean_status
+from case_model import clean_case_id, clean_name, clean_age, clean_status, clean_date
 import pytest
 
 def test_valid_case_id():
@@ -18,3 +18,7 @@ def test_invalid_case_id():
 def test_invalid_status():
     with pytest.raises(ValueError):
         clean_status("PENDING")
+
+def test_future_date():
+    with pytest.raises(ValueError, match="future date"):
+        clean_date("2027-01-01")

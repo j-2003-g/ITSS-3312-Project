@@ -1,0 +1,10 @@
+# Ignore everything in this folder...
+*
+
+# ...except these files. A "!" at the start means "do NOT ignore this".
+!case_model.py
+!clean_cases.py
+!midterm_cases_raw.csv
+!test_cases.py
+!README.md
+!.gitignore

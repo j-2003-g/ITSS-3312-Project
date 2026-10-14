@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, date
 def clean_case_id(raw_id):           # Define a function that receives a case ID
+    """Normalize a case ID to CC-#####; raise ValueError if it can't be fixed."""
     raw_id = raw_id.strip().upper()  # Remove outer spaces and convert to uppercase
     match = re.fullmatch(r"CC[- ]?(\d{5})", raw_id)
     if match is None:
@@ -8,12 +9,14 @@ def clean_case_id(raw_id):           # Define a function that receives a case ID
     return "CC-" + match.group(1)  # Return the cleaned case ID
 
 def clean_name(raw_name):
+    """Strip and collapse extra spaces, then convert the name to Title Case."""
     raw_name = raw_name.strip()
     raw_name = " ".join(raw_name.split()) #split the string, then add a space between them
     raw_name = raw_name.title()  # Capitalize the first letter of each word
     return raw_name             # Send the cleaned name back  # Remove spaces at the beginning and end
 
 def clean_sex(raw_sex):                 # Create a function to clean the sex field
+    """Return M or F; anything else becomes U (unknown)."""
     raw_sex = raw_sex.strip().upper()  # Remove outer spaces and make uppercase
     if raw_sex == "M" or raw_sex == "MALE":
         return "M"
@@ -34,6 +37,7 @@ def clean_age(raw_age):
     return ""                         # Invalid ages become blank
 
 def clean_status(raw_status):
+    """Map a status to OPEN or CLOSED; raise ValueError for anything else."""
     status = raw_status.strip().upper()
     if status in ["OPEN", "OPN"]:
         return "OPEN"
@@ -43,12 +47,14 @@ def clean_status(raw_status):
         raise ValueError("bad status")
 
 def clean_beat(raw_beat):
+    """Return the 3-digit police beat, or blank if there isn't one."""
     match = re.search(r"\d{3}", raw_beat)  # Find three digits
     if match:
         return match.group()              # Return the beat number
     return ""                             # No valid beat found
 
 def clean_date(raw_date):
+    """Convert a date in one of 3 formats to YYYY-MM-DD; raise ValueError if missing, invalid, or in the future."""
     raw_date = raw_date.strip()
     if raw_date.upper() in ["", "N/A", "UNKNOWN"]:
         raise ValueError("missing date")
@@ -65,6 +71,7 @@ def clean_date(raw_date):
     raise ValueError("invalid date")
 
 def clean_phone(tip_notes):
+    """Return the first phone number in the tip notes as ###-###-####, or blank."""
     match = re.search(
         r"(?<!\d)(?:\((\d{3})\)|(\d{3}))[-.\s]*(\d{3})[-.\s]*(\d{4})(?!\d)",
         tip_notes
@@ -106,9 +113,11 @@ class Case:
         )
     @property
     def years_unsolved(self):
+        """Return how many years have passed since the incident."""
         return 2026 - self.year
     @property
     def is_stale(self):
+        """Return True if the case is OPEN and unsolved for 5+ years."""
         return self.status == "OPEN" and self.years_unsolved >= 5
     def to_row(self):
         """Return fields in the required output CSV order."""
@@ -123,6 +132,3 @@ class Case:
             self.status,
             self.callback_phone
         ]
-
-        
-     

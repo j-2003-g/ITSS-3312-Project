@@ -1,9 +1,7 @@
-
 import csv
 from case_model import Case
 
 INPUT_FILE = "midterm_cases_raw.csv"
-
 
 def main():
     """Read, clean, analyze, and save cold case records."""
