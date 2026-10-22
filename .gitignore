@@ -8,3 +8,6 @@
 !test_cases.py
 !README.md
 !.gitignore
+!report.txt
+!cases_clean.csv
+!quarantine.csv
