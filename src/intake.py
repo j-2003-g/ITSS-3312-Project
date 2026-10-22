@@ -1,12 +1,18 @@
-# clean_cases.py
-# This is the file you RUN:  python clean_cases.py
-# It reads midterm_cases_raw.csv, cleans every row using case_model.py,
-# and creates three files: cases_clean.csv, quarantine.csv, and report.txt.
+# intake.py
+# This is the file you RUN, from the project's top folder:  python -m src.intake
+# It reads data/midterm_cases_raw.csv, cleans every row using src/models.py,
+# and creates three files in reports/: cases_clean.csv, quarantine.csv, and report.txt.
 
 import csv                    # Python's built-in tool for reading and writing CSV files
-from case_model import Case   # Bring in our Case class from case_model.py
+from pathlib import Path      # Builds file paths that work on Windows, Mac, and Linux
+from src.models import Case   # Bring in our Case class from src/models.py
 
-INPUT_FILE = "midterm_cases_raw.csv"   # The raw file to clean (ALL CAPS = a setting that doesn't change)
+# Settings (ALL CAPS = a setting that doesn't change)
+# __file__ is this file (src/intake.py); .parent.parent is the project's top folder.
+# Building paths from there means the script finds its files from any folder.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_FILE = PROJECT_ROOT / "data" / "midterm_cases_raw.csv"   # The raw file to clean
+REPORTS_DIR = PROJECT_ROOT / "reports"                         # Where the 3 output files go
 
 
 def main():
@@ -76,7 +82,8 @@ def main():
     cases.sort(key=lambda case: case.case_id)
 
     # STEP 3: Save cases_clean.csv
-    with open("cases_clean.csv", "w", newline="") as file:   # "w" = write (creates or overwrites the file)
+    REPORTS_DIR.mkdir(exist_ok=True)                         # Make sure reports/ exists (no error if it already does)
+    with open(REPORTS_DIR / "cases_clean.csv", "w", newline="") as file:   # "w" = write (creates or overwrites the file)
         writer = csv.writer(file)                            # Turns lists into CSV lines (adds quotes where needed)
         writer.writerow([                                    # First line: the column headers
             "case_id", "victim_name", "sex", "age",
@@ -87,7 +94,7 @@ def main():
             writer.writerow(case.to_row())                   # to_row() gives the values in the same order as the headers
 
     # STEP 4: Save quarantine.csv
-    with open("quarantine.csv", "w", newline="") as file:
+    with open(REPORTS_DIR / "quarantine.csv", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(["line_number", "reason", "raw_row"])   # Header line
         for row in quarantine:                                  # One line per rejected row
@@ -247,7 +254,7 @@ def main():
     )
 
     # STEP 8: Print and save the report
-    with open("report.txt", "w") as file:
+    with open(REPORTS_DIR / "report.txt", "w") as file:
 
         for line in report:
             print(line)                     # Show the line in the terminal
@@ -257,6 +264,6 @@ def main():
 
 
 # This line means: only run main() when this file is run directly
-# (python clean_cases.py), NOT when another file imports it.
+# (python -m src.intake), NOT when another file imports it.
 if __name__ == "__main__":
     main()

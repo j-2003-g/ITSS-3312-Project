@@ -1,11 +1,11 @@
-# test_cases.py
+# test_intake.py
 # Automated tests for our cleaner functions. Run them with:
-#     python -m pytest test_cases.py
+#     pytest          (from the project's top folder)
 # pytest finds every function whose name starts with "test_" and runs it.
 # A test PASSES if nothing goes wrong, and FAILS if an assert is False
 # or an unexpected error happens.
 
-from case_model import clean_case_id, clean_name, clean_age, clean_status, clean_date   # The functions we're testing
+from src.patterns import clean_case_id, clean_name, clean_age, clean_status, clean_date   # The functions we're testing (now in src/patterns.py)
 import pytest                                                                            # The testing library
 
 # --- "Happy path" tests: good or fixable input gives the right output ---
