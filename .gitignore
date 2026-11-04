@@ -11,3 +11,6 @@ __pycache__/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Secrets (API keys, passwords) never go in Git
+.env
