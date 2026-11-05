@@ -34,6 +34,8 @@ def build_series(dallas):
         reported=("MRD", "sum"),        # MRD = murders reported that year
         cleared=("CLR", "sum"),         # CLR = murders cleared (arrest OR exceptional means)
     )
+    # MAP stores CLR as a decimal (109.0); counts are whole numbers, so make them ints
+    per_year = per_year.astype({"reported": int, "cleared": int})
     per_year["clearance"] = per_year["cleared"] / per_year["reported"]
     per_year.index.name = "year"        # Lowercase, to match the deliverable's column names
     return per_year
@@ -77,7 +79,7 @@ def suspicious_years(per_year, dallas, n=SUSPICIOUS_COUNT, last=LAST_YEAR):
         if len(reasons) >= n and year not in reasons:
             break
         direction = "up" if change[year] > 0 else "down"
-        flag(year, f"clearance {direction} {jump:.0%} points from the year before "
+        flag(year, f"clearance {direction} {jump * 100:.0f} percentage points from the year before "
                    f"({per_year['clearance'].get(year - 1, float('nan')):.0%} -> {per_year['clearance'][year]:.0%})")
     return [(year, "; ".join(why)) for year, why in list(reasons.items())[:n]]
 
