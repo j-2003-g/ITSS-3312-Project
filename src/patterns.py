@@ -6,6 +6,11 @@
 import re                              # "re" = regular expressions, used to find text patterns like "CC-12345"
 from datetime import datetime, date    # datetime reads dates from text; date represents a calendar day
 
+# Settings (ALL CAPS = a value that doesn't change). Named here instead of
+# buried in the code, so a reader knows what each number means.
+MAX_AGE = 110                  # Oldest believable age; 999 and -1 are placeholders
+TODAY = date(2026, 10, 7)      # The assignment's "today": dates after this are future dates
+
 
 # ---------------------------------------------------------------------------
 # FIELD CLEANERS
@@ -51,7 +56,7 @@ def clean_age(raw_age):
     raw_age = raw_age.strip()             # Remove spaces so " 37 " becomes "37"
     try:                                  # "try" = attempt something that might fail
         age = int(raw_age)             # Convert text into an integer (fails for "N/A", "unknown", "?")
-        if 0 <= age <= 110:           # Valid age range (999 and -1 are placeholders, so they fail here)
+        if 0 <= age <= MAX_AGE:           # Valid age range (999 and -1 are placeholders, so they fail here)
             return age                # Good age: send back the number
     except ValueError:                # int() raises ValueError when the text isn't a whole number
         pass                          # Invalid number: continue below
@@ -96,7 +101,7 @@ def clean_date(raw_date):
             # date doesn't exist (like Feb 30 or month 13).
             # .date() keeps just the calendar day (drops the time part).
             parsed_date = datetime.strptime(raw_date, fmt).date()
-            if parsed_date > date(2026, 10, 7):       # The assignment's "today" is 10/07/2026
+            if parsed_date > TODAY:       # The assignment's "today" is 10/07/2026
                 raise ValueError("future date")       # A case can't happen in the future
             return parsed_date.isoformat()            # isoformat() writes the date as "YYYY-MM-DD"
         except ValueError as error:                   # Catches BOTH "wrong format" and our "future date" error

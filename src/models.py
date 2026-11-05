@@ -8,6 +8,10 @@ from src.patterns import (     # Bring in the field cleaners from src/patterns.p
     clean_date, clean_beat, clean_status, clean_phone
 )
 
+# Settings (ALL CAPS = a value that doesn't change)
+CURRENT_YEAR = 2026            # Used to work out how many years a case has been unsolved
+STALE_YEARS = 5                # An OPEN case this many years old or more is "stale"
+
 
 # ---------------------------------------------------------------------------
 # THE CASE CLASS
@@ -60,12 +64,12 @@ class Case:
     @property
     def years_unsolved(self):
         """Return how many years have passed since the incident."""
-        return 2026 - self.year          # Uses the calendar year only (2021 -> 5 years)
+        return CURRENT_YEAR - self.year          # Uses the calendar year only (2021 -> 5 years)
 
     @property
     def is_stale(self):
         """Return True if the case is OPEN and unsolved for 5+ years."""
-        return self.status == "OPEN" and self.years_unsolved >= 5   # Both must be true
+        return self.status == "OPEN" and self.years_unsolved >= STALE_YEARS   # Both must be true
 
     def to_row(self):
         """Return fields in the required output CSV order."""
