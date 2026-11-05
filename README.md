@@ -15,7 +15,9 @@ ITSS-3312-Project/
 │   ├─ __init__.py
 │   ├─ intake.py        # the pipeline: read → clean → quarantine → dedupe → report
 │   ├─ models.py        # the Case class (from_row, years_unsolved, is_stale)
-│   └─ patterns.py      # field cleaners / regex extractors (case_id, date, phone, ...)
+│   ├─ patterns.py      # field cleaners / regex extractors (case_id, date, phone, ...)
+│   ├─ get_data.py      # wk9: downloads MAP + Washington Post data into data/
+│   └─ series.py        # wk9: builds reports/dallas_series.csv + sanity checks
 ├─ tests/
 │   └─ test_intake.py   # pytest tests for the cleaners
 └─ reports/             # outputs: cases_clean.csv, quarantine.csv, report.txt
@@ -38,6 +40,8 @@ From the project's top folder, with the venv activated:
 
 ```bash
 python -m src.intake    # writes reports/cases_clean.csv, reports/quarantine.csv, reports/report.txt
+python -m src.get_data  # wk9: downloads data/map_ucr.csv and data/wapo_dallas.csv (gitignored)
+python -m src.series    # wk9: writes reports/dallas_series.csv, prints sanity checks
 pytest                  # runs every test in tests/
 ```
 
@@ -53,3 +57,15 @@ pytest                  # runs every test in tests/
   5. Any bare `except`? Any magic numbers?
   6. Does it do one thing?
   7. Then, and only then: style nits.
+
+## Roadmap (weeks 8-16)
+
+Every week adds one module to `src/` and one file to `reports/`. The full plan is in
+[`course_materials/01_build_roadmap_wk08-16.md`](course_materials/01_build_roadmap_wk08-16.md).
+
+## Data sources
+
+- Murder Accountability Project, UCR homicide and clearance data (UCR65_25), murderdata.org.
+- The Washington Post, Unsolved Homicide Database, github.com/washingtonpost/data-homicides, 2018 (CC BY-NC-SA 4.0).
+
+Aggregate analysis only: these files describe real victims. No names in any output, chart or commit.
