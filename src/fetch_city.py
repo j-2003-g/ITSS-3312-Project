@@ -40,9 +40,8 @@ def fetch_page(offset, token):
         "$order": "incidentnum",   # A stable order, so paging never repeats or skips rows
         "$limit": PAGE_SIZE,
         "$offset": offset,
+        "$$app_token": token,      # Our own token: requests are not throttled (no HTTP 429 mid-lab)
     }
-    if token:
-        params["$$app_token"] = token
     # Params go in as a dict so requests URL-encodes the quotes and % signs (a hand-built URL gets HTTP 400)
     response = requests.get(URL, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
     response.raise_for_status()    # Fail loudly on a 400/429 instead of saving an error message as data
@@ -94,9 +93,7 @@ def split_bad_years(df, first=FEED_START_YEAR, last=None):
 def main():
     """Fetch (or load the cache), flatten, quarantine bad years, and write data/case.db."""
     load_dotenv(PROJECT_ROOT / ".env")             # Must run before reading the token
-    token = os.environ.get(TOKEN_NAME)
-    if not token:
-        print(f"warning: no {TOKEN_NAME} in .env, so requests share the throttled public pool (HTTP 429 risk)")
+    token = os.environ[TOKEN_NAME]                 # KeyError here = .env is missing or has no token
 
     df = flatten(fetch_all(token))
     incidents, quarantine = split_bad_years(df)
