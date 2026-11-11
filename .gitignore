@@ -14,3 +14,10 @@ Thumbs.db
 
 # Secrets (API keys, passwords) never go in Git
 .env
+
+# Raw data: big, and rebuilt by "python -m src.get_data" (week 9+).
+# data/midterm_cases_raw.csv was committed before this rule, so Git keeps tracking it.
+data/*.csv
+data/*.json
+data/*.db
+!data/.gitkeep
