@@ -1,0 +1,16 @@
+# Virtual environment: each person rebuilds it with
+#   pip install -r requirements.txt
+.venv/
+
+# Python caches (created automatically, never commit them)
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Editor / OS clutter
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secrets (API keys, passwords) never go in Git
+.env
