@@ -17,7 +17,8 @@ ITSS-3312-Project/
 │   ├─ models.py        # the Case class (from_row, years_unsolved, is_stale)
 │   ├─ patterns.py      # field cleaners / regex extractors (case_id, date, phone, ...)
 │   ├─ get_data.py      # wk9: downloads MAP + Washington Post data into data/
-│   └─ series.py        # wk9: builds reports/dallas_series.csv + sanity checks
+│   ├─ series.py        # wk9: builds reports/dallas_series.csv + sanity checks
+│   └─ factor.py        # wk12: staffing vs clearance regressions → reports/factor_results.txt
 ├─ tests/
 │   └─ test_intake.py   # pytest tests for the cleaners
 └─ reports/             # outputs: cases_clean.csv, quarantine.csv, report.txt
@@ -42,6 +43,7 @@ From the project's top folder, with the venv activated:
 python -m src.intake    # writes reports/cases_clean.csv, reports/quarantine.csv, reports/report.txt
 python -m src.get_data  # wk9: downloads data/map_ucr.csv and data/wapo_dallas.csv (gitignored)
 python -m src.series    # wk9: writes reports/dallas_series.csv, prints sanity checks
+python -m src.factor    # wk12: fetches DPD staffing (FBI), runs the regressions
 pytest                  # runs every test in tests/
 ```
 
