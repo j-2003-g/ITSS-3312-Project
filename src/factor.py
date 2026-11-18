@@ -12,9 +12,12 @@
 #   2. Merges it with reports/dallas_series.csv (week 9) on year.
 #   3. Runs the pre-registered regression, the lag-1 variant, and one
 #      confounder check, and saves all three summaries to reports/factor_results.txt.
+#   4. Saves the merged table (reports/factor_merged.csv) and each model's
+#      numbers (reports/factor_model.json) for the week 14 dashboard.
 
 from pathlib import Path
 import pandas as pd
+import json
 import requests
 import statsmodels.formula.api as smf
 
@@ -23,6 +26,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SERIES_FILE = PROJECT_ROOT / "reports" / "dallas_series.csv"
 STAFFING_FILE = PROJECT_ROOT / "data" / "dpd_staffing.csv"
 RESULTS_FILE = PROJECT_ROOT / "reports" / "factor_results.txt"
+# Saved for the week 14 app, which only reads reports/ and computes nothing new
+MERGED_FILE = PROJECT_ROOT / "reports" / "factor_merged.csv"
+MODEL_FILE = PROJECT_ROOT / "reports" / "factor_model.json"
 
 # FBI Crime Data Explorer, police employee ("pe") endpoint: /pe/{state}/{ORI}.
 # The FBI uses Dallas PD's 9-character ORI here (TXDPD0000), not the
@@ -132,6 +138,39 @@ def one_line(name, model, term):
             f"R² = {model.rsquared:.3f}, n = {int(model.nobs)}")
 
 
+def model_numbers(models):
+    """Every number the dashboard needs from each model, as plain JSON-ready values."""
+    out = {}
+    for name, model in models.items():
+        term = [t for t in model.params.index if t != "Intercept"][0]
+        out[name] = {
+            "formula": f"clearance ~ {term}",
+            "term": term,
+            "intercept": float(model.params["Intercept"]),
+            "coef": float(model.params[term]),
+            "p_value": float(model.pvalues[term]),
+            "r_squared": float(model.rsquared),
+            "n": int(model.nobs),
+            "conf_int_95": [float(v) for v in model.conf_int().loc[term]],
+            "factor_min": float(model.model.exog[:, 1].min()),   # What-If slider range:
+            "factor_max": float(model.model.exog[:, 1].max()),   # stay inside the data
+        }
+    return out
+
+
+def save_for_dashboard(merged, models, years):
+    """Write the merged table and the model numbers that src/app.py will read."""
+    merged.to_csv(MERGED_FILE, index=False)
+    payload = {"hypothesis": "Dallas PD sworn officers per homicide is associated with Dallas "
+                             "homicide clearance, in the positive direction (plus a one-year lag).",
+               "clearance_definition": "FBI: cleared by arrest or exceptional means, "
+                                       "counted in the year the clearance happens",
+               "staffing_source": SOURCE_NOTE,
+               "years": years,
+               "models": model_numbers(models)}
+    MODEL_FILE.write_text(json.dumps(payload, indent=2))
+
+
 def main():
     """Fetch, merge, eyeball, model, and save the summaries."""
     series = pd.read_csv(SERIES_FILE)
@@ -158,7 +197,9 @@ def main():
         file.write("\n".join(lines) + "\n")
         for name, model in models.items():
             file.write(f"\n\n===== {name} =====\n{model.summary()}\n")
-    print(f"\nwrote {RESULTS_FILE.relative_to(PROJECT_ROOT)}")
+    save_for_dashboard(merged, models, [int(merged.year.min()), int(merged.year.max())])
+    for path in (RESULTS_FILE, MERGED_FILE, MODEL_FILE):
+        print(f"wrote {path.relative_to(PROJECT_ROOT)}")
 
 
 if __name__ == "__main__":

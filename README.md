@@ -43,7 +43,8 @@ From the project's top folder, with the venv activated:
 python -m src.intake    # writes reports/cases_clean.csv, reports/quarantine.csv, reports/report.txt
 python -m src.get_data  # wk9: downloads data/map_ucr.csv and data/wapo_dallas.csv (gitignored)
 python -m src.series    # wk9: writes reports/dallas_series.csv, prints sanity checks
-python -m src.factor    # wk12: fetches DPD staffing (FBI), runs the regressions
+python -m src.factor    # wk12: fetches DPD staffing (FBI), runs the regressions; saves
+                        #       factor_results.txt, factor_merged.csv, factor_model.json for the app
 pytest                  # runs every test in tests/
 ```
 

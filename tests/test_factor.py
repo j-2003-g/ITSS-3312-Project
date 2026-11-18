@@ -2,7 +2,7 @@
 # Tests for src/factor.py, using made-up FBI responses (no network needed).
 
 import pandas as pd
-from src.factor import parse_pe, build_merged, run_models
+from src.factor import parse_pe, build_merged, run_models, model_numbers
 
 
 def fake_payload():
@@ -47,3 +47,16 @@ def test_models_run_and_recover_a_positive_slope():
     models = run_models(build_merged(series, staffing))
     assert models["primary"].params["officers_per_100_homicides"] > 0
     assert int(models["lag1"].nobs) == 19                 # First year has no lag
+
+
+def test_model_numbers_are_dashboard_ready():
+    years = list(range(1990, 2010))
+    series = pd.DataFrame({"year": years, "reported": [100] * 20, "cleared": [0] * 20,
+                           "clearance": [0.4 + 0.01 * i for i in range(20)]})
+    staffing = pd.DataFrame({"year": years, "sworn_total": [1000 + 50 * i for i in range(20)]})
+    numbers = model_numbers(run_models(build_merged(series, staffing)))
+    primary = numbers["primary"]
+    assert primary["term"] == "officers_per_100_homicides"
+    assert primary["factor_min"] == 1000 and primary["factor_max"] == 1950   # slider range
+    assert primary["conf_int_95"][0] < primary["coef"] < primary["conf_int_95"][1]
+    import json; json.dumps(numbers)                                          # must be JSON-safe
