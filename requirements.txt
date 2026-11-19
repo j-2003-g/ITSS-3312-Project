@@ -30,4 +30,3 @@ statsmodels==0.15.0
 tzdata==2026.5
 urllib3==2.8.0
 xyzservices==2026.9.1
-ï»¿branca==0.8.2
