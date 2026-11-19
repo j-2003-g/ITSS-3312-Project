@@ -37,6 +37,7 @@ CDE_URL = "https://cde.ucr.cjis.gov/LATEST/pe/TX/TXDPD0000"
 FIRST_YEAR = 1965             # Same window as the week 9 series
 LAST_YEAR = 2025
 DOWNLOAD_TIMEOUT_SECONDS = 120
+YEARS_PER_REQUEST = 10        # Ask for a decade at a time; the FBI rejects some wide ranges
 SOURCE_NOTE = "FBI Crime Data Explorer, Law Enforcement Employees, ORI TXDPD0000"
 
 # Supplement anchors: roughly what our table should show (sworn officers)
@@ -75,21 +76,44 @@ def parse_pe(payload):
     return pd.DataFrame(rows, columns=["year", "sworn_total", "civilians_total"])
 
 
+def request_years(first, last):
+    """Ask the FBI for one range of years. Return the parsed rows, or None if the range is rejected."""
+    response = requests.get(CDE_URL, params={"from": first, "to": last},
+                            timeout=DOWNLOAD_TIMEOUT_SECONDS)
+    if response.status_code == 400:            # The FBI rejects years it doesn't publish
+        message = response.text.strip()[:200]
+        print(f"  {first}-{last}: rejected by the FBI ({message or 'no reason given'})")
+        return None
+    response.raise_for_status()                # Any other error (500, 403...) stops the run
+    return parse_pe(response.json())
+
+
 def fetch_staffing(path=STAFFING_FILE):
-    """Download Dallas PD staffing to data/dpd_staffing.csv (or reuse the cached copy) and return it."""
+    """Download Dallas PD staffing to data/dpd_staffing.csv (or reuse the cached copy) and return it.
+
+    Asks for one decade at a time. If the FBI rejects a decade (for example a
+    year it hasn't published yet), it retries that decade one year at a time
+    and skips only the years that are really missing.
+    """
     if path.exists():
         print(f"cached: {path.name}")
         return pd.read_csv(path)
-    response = requests.get(CDE_URL, params={"from": FIRST_YEAR, "to": LAST_YEAR},
-                            timeout=DOWNLOAD_TIMEOUT_SECONDS)
-    response.raise_for_status()
-    staffing = parse_pe(response.json())
+    pieces = []
+    for start in range(FIRST_YEAR, LAST_YEAR + 1, YEARS_PER_REQUEST):
+        end = min(start + YEARS_PER_REQUEST - 1, LAST_YEAR)
+        rows = request_years(start, end)
+        if rows is None:                       # Decade rejected: try its years one by one
+            rows = pd.concat([r for year in range(start, end + 1)
+                              if (r := request_years(year, year)) is not None] or [parse_pe({})])
+        pieces.append(rows)
+    staffing = (pd.concat(pieces).drop_duplicates("year")
+                .sort_values("year").reset_index(drop=True))
     if staffing.empty:
         raise ValueError("The FBI returned no staffing rows for TXDPD0000. Check the URL and ORI.")
     staffing["source"] = SOURCE_NOTE
     path.parent.mkdir(exist_ok=True)
     staffing.to_csv(path, index=False)
-    print(f"saved: {path.name} ({len(staffing)} years)")
+    print(f"saved: {path.name} ({len(staffing)} years, {staffing.year.min()}-{staffing.year.max()})")
     return staffing
 
 
