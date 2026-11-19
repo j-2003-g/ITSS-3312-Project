@@ -68,7 +68,7 @@ def test_fetch_skips_rejected_years(tmp_path, monkeypatch):
 
     class FakeResponse:
         def __init__(self, first, last):
-            self.status_code = 400 if last >= 2025 and first != last or (first == last == 2025) else 200
+            self.status_code = 400 if last >= 2025 else 200
             self.text = "Year not available" if self.status_code == 400 else ""
             self.first, self.last = first, last
         def raise_for_status(self):
@@ -79,9 +79,22 @@ def test_fetch_skips_rejected_years(tmp_path, monkeypatch):
                                 "Female Officers": {str(y): 500 for y in years}}}
 
     monkeypatch.setattr(factor, "FIRST_YEAR", 2015)
+    monkeypatch.setattr(factor, "YEARS_PER_REQUEST", 5)            # 2015-19 ok, 2020-24 ok, 2025 rejected
     monkeypatch.setattr(factor, "LAST_YEAR", 2025)
     monkeypatch.setattr(factor.requests, "get",
                         lambda url, params, timeout: FakeResponse(params["from"], params["to"]))
     staffing = factor.fetch_staffing(tmp_path / "staffing.csv")
     assert list(staffing.year) == list(range(2015, 2025))          # 2025 skipped, the rest kept
+    assert staffing["sworn_total"].dtype.kind == "i"               # Counts are numbers, not text
     assert (tmp_path / "staffing.csv").exists()
+
+
+def test_text_counts_still_model_as_numbers():
+    """Even if counts arrive as text, the regression gets one numeric slope, not categories."""
+    years = list(range(1990, 2010))
+    series = pd.DataFrame({"year": years, "reported": [100] * 20, "cleared": [0] * 20,
+                           "clearance": [0.4 + 0.01 * i for i in range(20)]})
+    staffing = pd.DataFrame({"year": years, "sworn_total": [str(1000 + 50 * i) for i in range(20)]},
+                            dtype=object)
+    models = run_models(build_merged(series, staffing))
+    assert "officers_per_100_homicides" in models["primary"].params.index

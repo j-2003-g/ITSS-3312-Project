@@ -34,7 +34,7 @@ MODEL_FILE = PROJECT_ROOT / "reports" / "factor_model.json"
 # The FBI uses Dallas PD's 9-character ORI here (TXDPD0000), not the
 # 7-character TXDPD00 in the MAP file. No API key is needed on this host.
 CDE_URL = "https://cde.ucr.cjis.gov/LATEST/pe/TX/TXDPD0000"
-FIRST_YEAR = 1965             # Same window as the week 9 series
+FIRST_YEAR = 1985             # The FBI's staffing data starts in 1985 ("Please enter a from year greater than 1984")
 LAST_YEAR = 2025
 DOWNLOAD_TIMEOUT_SECONDS = 120
 YEARS_PER_REQUEST = 10        # Ask for a decade at a time; the FBI rejects some wide ranges
@@ -108,6 +108,10 @@ def fetch_staffing(path=STAFFING_FILE):
         pieces.append(rows)
     staffing = (pd.concat(pieces).drop_duplicates("year")
                 .sort_values("year").reset_index(drop=True))
+    # Combining an empty piece (a rejected range) with real ones can leave the
+    # counts stored as text; make sure they are numbers before modeling
+    staffing = staffing.astype({"year": int, "sworn_total": int})
+    staffing["civilians_total"] = pd.to_numeric(staffing["civilians_total"])
     if staffing.empty:
         raise ValueError("The FBI returned no staffing rows for TXDPD0000. Check the URL and ORI.")
     staffing["source"] = SOURCE_NOTE
@@ -135,7 +139,7 @@ def build_merged(series, staffing):
     row, so a missing year gives a blank lag instead of a wrong one.
     """
     series = series.astype({"year": int})
-    staffing = staffing.astype({"year": int})
+    staffing = staffing.astype({"year": int, "sworn_total": float})   # Numbers, never text
     merged = series.merge(staffing[["year", "sworn_total"]], on="year", how="inner")
     merged["officers_per_100_homicides"] = merged["sworn_total"] / merged["reported"] * PER_HOMICIDES
     previous = merged[["year", "officers_per_100_homicides"]].rename(
