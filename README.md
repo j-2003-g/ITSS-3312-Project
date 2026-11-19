@@ -21,8 +21,7 @@ ITSS-3312-Project/
 │   ├─ charts.py        # wk10: reports/clearance_trend.png
 │   ├─ casemap.py       # wk10: reports/dallas_map.html
 │   ├─ fetch_city.py    # wk11: Dallas OpenData murder incidents → data/case.db (cached)
-│   ├─ queries.py       # wk11: three SQL questions + city-vs-FBI comparison
-│   └─ factor.py        # wk12: staffing vs clearance regressions → reports/factor_results.txt
+│   └─ queries.py       # wk11: three SQL questions + city-vs-FBI comparison
 ├─ tests/
 │   └─ test_*.py        # pytest tests, one file per module
 └─ reports/             # outputs: cases_clean.csv, quarantine.csv, report.txt
