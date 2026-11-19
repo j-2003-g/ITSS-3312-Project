@@ -58,6 +58,8 @@ python -m src.charts    # wk10: writes reports/clearance_trend.png
 python -m src.casemap   # wk10: writes reports/dallas_map.html
 python -m src.fetch_city  # wk11: fetches once into data/raw_incidents.json, builds data/case.db
 python -m src.queries   # wk11: murders per year, top 5 beats, our slice, city vs FBI
+python -m src.factor    # wk12: fetches DPD staffing (FBI), runs the regressions; saves
+                        #       factor_results.txt, factor_merged.csv, factor_model.json for the app
 pytest                  # runs every test in tests/
 ```
 
