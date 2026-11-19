@@ -1,0 +1,56 @@
+{
+  "hypothesis": "Dallas PD sworn officers per homicide is associated with Dallas homicide clearance, in the positive direction (plus a one-year lag).",
+  "clearance_definition": "FBI: cleared by arrest or exceptional means, counted in the year the clearance happens",
+  "staffing_source": "FBI Crime Data Explorer, Law Enforcement Employees, ORI TXDPD0000",
+  "years": [
+    1985,
+    2025
+  ],
+  "models": {
+    "primary": {
+      "formula": "clearance ~ officers_per_100_homicides",
+      "term": "officers_per_100_homicides",
+      "intercept": 0.7156574345980433,
+      "coef": -5.547835579233986e-05,
+      "p_value": 0.0271659603879099,
+      "r_squared": 0.12200042950844436,
+      "n": 40,
+      "conf_int_95": [
+        -0.00010435409419433997,
+        -6.602617390339741e-06
+      ],
+      "factor_min": 571.4000000000001,
+      "factor_max": 3054.310344827586
+    },
+    "lag1": {
+      "formula": "clearance ~ officers_per_100_homicides_lag1",
+      "term": "officers_per_100_homicides_lag1",
+      "intercept": 0.7334221646486008,
+      "coef": -7.08299920503842e-05,
+      "p_value": 0.00945728331819821,
+      "r_squared": 0.17274267892559492,
+      "n": 38,
+      "conf_int_95": [
+        -0.0001232231417456284,
+        -1.843684235514003e-05
+      ],
+      "factor_min": 571.4000000000001,
+      "factor_max": 3054.310344827586
+    },
+    "check_sworn_total": {
+      "formula": "clearance ~ sworn_total",
+      "term": "sworn_total",
+      "intercept": 0.9149216400686297,
+      "coef": -9.397409022783037e-05,
+      "p_value": 0.03897300254167336,
+      "r_squared": 0.10741191022961472,
+      "n": 40,
+      "conf_int_95": [
+        -0.00018293735903057435,
+        -5.010821425086392e-06
+      ],
+      "factor_min": 2170.0,
+      "factor_max": 3666.0
+    }
+  }
+}
